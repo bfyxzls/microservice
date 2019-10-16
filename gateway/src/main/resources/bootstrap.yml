@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: gateway
+  profiles:
+     active: ${SPRING_PROFILES_ACTIVE:dev}
+  zipkin:
+    #服务端地址
+    base-url: http://localhost:9411
+    #本项目服务名
+    service:
+      name: ${spring.application.name}
+  sleuth:
+      #监控开关
+      enabled: true
+      #采样率
+      sampler:
+        percentage: 1
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:6761}/eureka/ #没有配置就使用默认值
+
+zuul:
+  routes:
+    a:
+      path: /a/**
+      sensitiveHeaders: "*" #不过滤任何头信息
+      serviceId: service-a
+    b:
+      path: /b/**
+      sensitiveHeaders: "*"
+      serviceId: service-b
+    c:
+      path: /c/**
+      sensitiveHeaders: "*"
+      serviceId: service-c
+  add-proxy-headers: true
+  prefix: v1 #前缀
+  ratelimit:
+    key-prefix: a  #对应用来标识请求的key的前缀
+    enabled: true
+    repository: REDIS  #对应存储类型（用来存储统计信息）
+    behind-proxy: true  #代理之后
+    default-policy: #可选 - 针对所有的路由配置的策略，除非特别配置了policies
+      limit: 10 #可选 - 每个刷新时间窗口对应的请求数量限制
+      quota: 1000 #可选-  每个刷新时间窗口对应的请求时间限制（秒）
+        refresh-interval: 60 # 刷新时间窗口的时间，默认值 (秒)
+          type: #可选 限流方式
+            - user
+            - origin
+            - url
+      policies:
+        myServiceId: #特定的路由
+          limit: 10 #可选- 每个刷新时间窗口对应的请求数量限制
+          quota: 1000 #可选-  每个刷新时间窗口对应的请求时间限制（秒）
+          refresh-interval: 60 # 刷新时间窗口的时间，默认值 (秒)
+          type: #可选 限流方式
+            - user
+            - origin
+            - url
+
