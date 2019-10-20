@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: hystrixmonitor
+  profiles:
+     active: ${SPRING_PROFILES_ACTIVE:dev}
+  zipkin:
+    #服务端地址
+    base-url: http://localhost:9411
+    #本项目服务名
+    service:
+      name: ${spring.application.name}
+  sleuth:
+      #监控开关
+      enabled: true
+      #采样率
+      sampler:
+        percentage: 1
+server:
+  port: 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${eureka.host:localhost}:${eureka.port:8761}/eureka/ #没有配置就使用默认值
+
+turbine.app-config: servicea,serviceb,servicec
